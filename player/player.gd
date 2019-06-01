@@ -3,7 +3,7 @@ extends KinematicBody2D
 const max_falling_speed = 960
 const max_running_speed = 360
 const acceleration = 2.8125
-const deceleration = 0.5
+const deceleration = 30
 const friction = 2.8125
 const top_speed = 6.0
 const jump_power = 6.5
@@ -36,22 +36,17 @@ func _physics_process(delta):
 func ground_movement(delta):
 	speed.y = 0
 	if input["left"] == true:
-		ground_speed -= acceleration * delta
-	if input["right"] == true:
-		ground_speed += acceleration * delta
-	if input["left"] == false && input["right"] == false:
+		if ground_speed > 0:
+			ground_speed -= deceleration * delta
+		elif ground_speed > -max_running_speed:
+			ground_speed -= acceleration * delta
+	elif input["right"] == true:
 		if ground_speed < 0:
-			if ground_speed > -(friction * delta):
-				ground_speed = 0
-			else:
-				ground_speed += friction * delta
-		else:
-			if ground_speed < friction * delta:
-				ground_speed = 0
-			else:
-				ground_speed -= friction *delta
-	if ground_speed > max_running_speed:
-		ground_speed = max_running_speed
+			ground_speed += deceleration * delta
+		elif ground_speed < max_running_speed:
+			ground_speed += acceleration * delta
+	else:
+		ground_speed -= min(abs(ground_speed ), friction * delta) * sign(ground_speed)
 	var new_speed = Vector2(ground_speed * cos(0), ground_speed * -sin(0))
 	return new_speed
 
