@@ -23,7 +23,6 @@ config/icon="res://icon.png"
 
 window/size/width=400
 window/size/height=224
-window/vsync/use_vsync=false
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 

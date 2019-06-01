@@ -6,3 +6,31 @@
 current = true
 process_mode = 0
 script = ExtResource( 1 )
+
+[node name="left_extents" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( -200, 0 )
+collision_mask = 4
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="right_extents" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 200, 0 )
+collision_mask = 4
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="top_extents" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 0, -114 )
+collision_mask = 4
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="bottom_extents" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 0, 114 )
+collision_mask = 4
+collide_with_areas = true
+collide_with_bodies = false
