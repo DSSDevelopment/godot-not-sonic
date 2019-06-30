@@ -13,8 +13,6 @@ const slope_roll_down = 0.3125
 const fall = 2.5
 const gravity = 13.125
 
-# the problem is that we can't manually position the node. We need to use move_and_collide, but the target needs to be EXACT relative to all of our collisions!
-
 # xpos and ypos are held by KinematicBody2D
 var state = "falling"
 var wall_collision = "none"
