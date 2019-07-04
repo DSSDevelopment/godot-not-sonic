@@ -27,7 +27,7 @@ func tick(delta, props, state):
 	var collisions = state['collisions'].duplicate()
 	var flat_ground = state['collisions']['angle'] == 0 or state['collisions']['angle'] == -90
 	for sensor in [sensors['wall_left'], sensors['wall_right']]:
-		sensor.set_position(Vector2(sensor.position.x, 8.0 if flat_ground else 0.0))
+		sensor.set_position(Vector2(sensor.position.x, 8.0 if (flat_ground and collisions['move_mode'] == 'ground') else 0.0))
 	
 	for sensor in sensors:
 		collisions[sensor] = {
@@ -37,7 +37,7 @@ func tick(delta, props, state):
 		}
 	if not collisions['floor_left']['colliding'] and not collisions['floor_right']['colliding']:
 		collisions['move_mode'] = 'air'
-	else:
-		if state['velocity'].y > 0:
+	elif state['velocity'].y > 0:
+		if (collisions['floor_left']['colliding'] and state['host']['position'].y + 20 > collisions['floor_left']['position'].y) or (collisions['floor_right']['colliding'] and state['host']['position'].y + 20 > collisions['floor_right']['position'].y):
 			collisions['move_mode'] = 'ground'
 	return collisions

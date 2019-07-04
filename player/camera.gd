@@ -19,14 +19,15 @@ func update_camera():
 		return
 	var proposed_position = position
 	if player.position.x < position.x + LEFT:
-		proposed_position.x += max(player.position.x - (position.x + LEFT), -X_AXIS_TOLERANCE)
+		proposed_position.x = player.position.x - LEFT#, -X_AXIS_TOLERANCE)
 	elif player.position.x > position.x + RIGHT:
-		proposed_position.x += min(player.position.x - (position.x + RIGHT), X_AXIS_TOLERANCE)
+		proposed_position.x = player.position.x - RIGHT#, X_AXIS_TOLERANCE)
 	if player.position.y < position.y - AIR_TOP:
 		proposed_position.y += max(player.position.y - (position.y - AIR_TOP), -16)
 	elif player.position.y > position.y + AIR_BOTTOM:
 		proposed_position.y += min(player.position.y - (position.y + AIR_BOTTOM), 16)
-	position = position_for_camera_extents(proposed_position)
+	var updated_position = position_for_camera_extents(proposed_position)
+	set_position(Vector2(round(updated_position.x), round(updated_position.y)))
 
 func position_for_camera_extents(proposed_position):
 	if $top_extents.is_colliding() and proposed_position.y > position.y:

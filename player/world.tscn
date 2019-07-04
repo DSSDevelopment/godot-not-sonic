@@ -1,9 +1,9 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://player/world.gd" type="Script" id=1]
-[ext_resource path="res://player/player.tscn" type="PackedScene" id=2]
-[ext_resource path="res://level_tileset.png" type="Texture" id=3]
-[ext_resource path="res://player/camera.tscn" type="PackedScene" id=4]
+[ext_resource path="res://player/camera.tscn" type="PackedScene" id=2]
+[ext_resource path="res://player/player.tscn" type="PackedScene" id=3]
+[ext_resource path="res://level_tileset.png" type="Texture" id=4]
 
 [sub_resource type="ConvexPolygonShape2D" id=1]
 points = PoolVector2Array( 0, 0, 128, 0, 128, 128, 0, 128 )
@@ -17,9 +17,15 @@ points = PoolVector2Array( 0, 0, 128, 0, 128, 128, 0, 128 )
 [sub_resource type="ConvexPolygonShape2D" id=4]
 points = PoolVector2Array( 0, 0, 256, 0, 256, 64, 0, 64 )
 
-[sub_resource type="TileSet" id=5]
+[sub_resource type="ConvexPolygonShape2D" id=5]
+points = PoolVector2Array( 0, 47.5233, 128, 0, 128, 80, 0, 80 )
+
+[sub_resource type="ConvexPolygonShape2D" id=8]
+points = PoolVector2Array( 0, 95.6557, 20.4177, 93.9813, 41.3489, 88.1205, 55.3029, 81.9807, 73.4431, 73.0501, 86.5601, 64.9568, 103.305, 54.0726, 112.515, 47.9328, 126.748, 39.0022, 142.655, 28.9552, 157.447, 20.0246, 174.75, 11.9313, 184.239, 8.02411, 193.448, 4.95422, 205.17, 2.16339, 224.147, 0, 256, 0, 256, 128, 0, 128 )
+
+[sub_resource type="TileSet" id=6]
 0/name = "level_tileset.png 0"
-0/texture = ExtResource( 3 )
+0/texture = ExtResource( 4 )
 0/tex_offset = Vector2( 0, 0 )
 0/modulate = Color( 1, 1, 1, 1 )
 0/region = Rect2( 1099, 1425, 128, 128 )
@@ -35,7 +41,7 @@ points = PoolVector2Array( 0, 0, 256, 0, 256, 64, 0, 64 )
 } ]
 0/z_index = 0
 1/name = "level_tileset.png 1"
-1/texture = ExtResource( 3 )
+1/texture = ExtResource( 4 )
 1/tex_offset = Vector2( 0, 0 )
 1/modulate = Color( 1, 1, 1, 1 )
 1/region = Rect2( 1230, 1425, 128, 128 )
@@ -51,7 +57,7 @@ points = PoolVector2Array( 0, 0, 256, 0, 256, 64, 0, 64 )
 } ]
 1/z_index = 0
 2/name = "level_tileset.png 2"
-2/texture = ExtResource( 3 )
+2/texture = ExtResource( 4 )
 2/tex_offset = Vector2( 0, 0 )
 2/modulate = Color( 1, 1, 1, 1 )
 2/region = Rect2( 1361, 1425, 128, 128 )
@@ -67,7 +73,7 @@ points = PoolVector2Array( 0, 0, 256, 0, 256, 64, 0, 64 )
 } ]
 2/z_index = 0
 3/name = "level_tileset.png 3"
-3/texture = ExtResource( 3 )
+3/texture = ExtResource( 4 )
 3/tex_offset = Vector2( 0, 0 )
 3/modulate = Color( 1, 1, 1, 1 )
 3/region = Rect2( 1069, 1132, 256, 64 )
@@ -82,35 +88,71 @@ points = PoolVector2Array( 0, 0, 256, 0, 256, 64, 0, 64 )
 "shape_transform": Transform2D( 1, 0, 0, 1, 0, 0 )
 } ]
 3/z_index = 0
+4/name = "level_tileset.png 4"
+4/texture = ExtResource( 4 )
+4/tex_offset = Vector2( 0, 0 )
+4/modulate = Color( 1, 1, 1, 1 )
+4/region = Rect2( 1064, 771, 128, 80 )
+4/tile_mode = 0
+4/occluder_offset = Vector2( 0, 0 )
+4/navigation_offset = Vector2( 0, 0 )
+4/shapes = [ {
+"autotile_coord": Vector2( 0, 0 ),
+"one_way": false,
+"one_way_margin": 1.0,
+"shape": SubResource( 5 ),
+"shape_transform": Transform2D( 1, 0, 0, 1, 0, 0 )
+} ]
+4/z_index = 0
+5/name = "level_tileset.png 5"
+5/texture = ExtResource( 4 )
+5/tex_offset = Vector2( 0, 0 )
+5/modulate = Color( 1, 1, 1, 1 )
+5/region = Rect2( 1046, 277, 256, 128 )
+5/tile_mode = 0
+5/occluder_offset = Vector2( 0, 0 )
+5/navigation_offset = Vector2( 0, 0 )
+5/shapes = [ {
+"autotile_coord": Vector2( 0, 0 ),
+"one_way": false,
+"one_way_margin": 1.0,
+"shape": SubResource( 8 ),
+"shape_transform": Transform2D( 1, 0, 0, 1, 0, 0 )
+} ]
+5/z_index = 0
 
-[sub_resource type="RectangleShape2D" id=6]
+[sub_resource type="RectangleShape2D" id=7]
 extents = Vector2( 10, 1000 )
 
 [node name="world" type="Node2D"]
 script = ExtResource( 1 )
-
-[node name="player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 366.001, -54 )
-
-[node name="tile_map" type="TileMap" parent="."]
-tile_set = SubResource( 5 )
-collision_layer = 1024
-collision_mask = 1024
-format = 1
-tile_data = PoolIntArray( 1048619, 2, 0, 1179691, 2, 0, 1310716, 3, 0, 1245184, 3, 0, 1245188, 3, 0, 1245192, 3, 0, 1245196, 3, 0, 1245200, 3, 0, 1245204, 3, 0, 1245208, 3, 0, 1245212, 3, 0, 1245216, 3, 0, 1245220, 3, 0, 1376254, 0, 0, 1310720, 0, 0, 1310722, 0, 0, 1310724, 0, 0, 1310726, 0, 0, 1310728, 0, 0, 1310749, 2, 0, 1310763, 2, 0, 1376291, 3, 0, 1376295, 3, 0, 1507326, 0, 0, 1441792, 0, 0, 1441794, 0, 0, 1441796, 0, 0, 1441798, 0, 0, 1441800, 0, 0, 1441821, 2, 0, 1441823, 3, 0, 1441827, 3, 0, 1441831, 3, 0, 1441835, 2, 0, 1507359, 0, 0, 1507361, 0, 0, 1507363, 0, 0, 1507365, 0, 0, 1507367, 0, 0, 1507369, 0, 0 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="camera" parent="." instance=ExtResource( 4 )]
-position = Vector2( 364.38, -56.0779 )
+[node name="camera" parent="." instance=ExtResource( 2 )]
+position = Vector2( 198.514, 412.357 )
 drag_margin_h_enabled = false
 drag_margin_v_enabled = false
-smoothing_speed = 10.0
-drag_margin_left = 0.0
-drag_margin_top = 0.0
-drag_margin_right = 0.0
-drag_margin_bottom = 0.0
+smoothing_speed = 30.0
+drag_margin_left = 0.07
+drag_margin_top = 0.15
+drag_margin_right = 0.07
+drag_margin_bottom = 0.15
+
+[node name="player" parent="." instance=ExtResource( 3 )]
+position = Vector2( 119.936, 407.144 )
+
+[node name="tile_map" type="TileMap" parent="."]
+tile_set = SubResource( 6 )
+cell_size = Vector2( 16, 16 )
+collision_layer = 1024
+collision_mask = 1024
+format = 1
+tile_data = PoolIntArray( 65529, 1, 0, 131202, 1, 0, 589817, 1, 0, 655490, 1, 0, 1114105, 1, 0, 1179778, 1, 0, 1441890, 5, 0, 1441906, 3, 0, 1507402, 4, 0, 1638393, 1, 0, 1704050, 2, 0, 1704058, 2, 0, 1704066, 2, 0, 1835009, 3, 0, 1835025, 3, 0, 1835041, 3, 0, 1835082, 2, 0, 1835090, 3, 0, 1966178, 2, 0, 1966186, 2, 0, 2031674, 3, 0, 2162682, 2, 0, 2097234, 1, 0, 2097242, 1, 0, 2293818, 2, 0, 2293826, 2, 0, 2359330, 4, 0, 2359338, 3, 0, 2359370, 1, 0, 2555930, 4, 0, 2686970, 2, 0, 2621482, 1, 0, 2621490, 1, 0, 2687010, 1, 0, 2752530, 4, 0, 2818106, 2, 0, 2883610, 1, 0, 2949122, 3, 0, 3080210, 1, 0, 3211258, 2, 0, 3211266, 1, 0, 3211274, 1, 0 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="camera_extents" type="Node" parent="."]
 
@@ -120,4 +162,4 @@ collision_layer = 4
 collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="camera_extents/level_left"]
-shape = SubResource( 6 )
+shape = SubResource( 7 )

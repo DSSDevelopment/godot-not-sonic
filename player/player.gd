@@ -23,8 +23,7 @@ var slope: float = 0.0
 var ground_angle: float = 0.0
 
 func _physics_process(delta):
-	if $"../camera":
-		$"../camera".update_camera()
+	pass
 
 
 

@@ -63,53 +63,61 @@ func _ready():
 	else:
 		print("ERROR: Unable to initialize movement controller. Missing child node(s).")
 
+func _process(delta):
+	if $"/root/world/camera":
+		$"/root/world/camera".align()
+
 func _physics_process(delta):
 	var collisions_update = sensor_collider.tick(delta, properties, state)
 	if state['collisions']['move_mode'] != collisions_update['move_mode']:
 		update_move_mode(state['collisions']['move_mode'], collisions_update['move_mode'])
 	state['collisions'] = collisions_update
 	state['input'] = input_handler.tick(delta, properties, state)
+	var floor_normal = Vector2(0, 0)
 	if state['collisions']["move_mode"] == "ground":
 		state['ground_speed'] = ground_state_integrator.tick(delta, properties, state)
-		state['velocity'] = Vector2(state['ground_speed'] * cos(0), state['ground_speed'] * -sin(0))
+		if state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding']:
+			floor_normal = state['collisions']['floor_left']['normal'] if state['collisions']['floor_left']['position'].y < state['collisions']['floor_right']['position'].y else state['collisions']['floor_right']['normal']
+		elif state['collisions']['floor_left']['colliding'] and not state['collisions']['floor_right']['colliding']:
+			floor_normal = state['collisions']['floor_left']['normal']
+		elif state['collisions']['floor_right']['colliding'] and not state['collisions']['floor_left']['colliding']:
+			floor_normal = state['collisions']['floor_right']['normal']
+		state['collisions']['angle'] = floor_normal.angle_to(Vector2(0, -1))
+		state['velocity'] = Vector2(state['ground_speed'] * cos(state['collisions']['angle']), state['ground_speed'] * -sin(state['collisions']['angle']))
 	else:
 		state['velocity'] = air_state_integrator.tick(delta, properties, state)
-	var jumping = state['input']['jump'] and state['flags']['canjump'] and not (state['collisions']['ceiling_left']['colliding'] or state['collisions']['ceiling_right']['colliding'])
+	var jumping = state['input']['jumped'] and state['flags']['canjump'] and not (state['collisions']['ceiling_left']['colliding'] or state['collisions']['ceiling_right']['colliding'])
 	if jumping:
 		jump()
-	state['host'].move_and_slide(state['velocity'])
-	var adjusted_position = collision_popout()
-	state['host'].set_position(adjusted_position)
+	var stick_to_ground = state['collisions']['move_mode'] == 'ground' and (state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding'])
+	state['host'].move_and_slide(state['velocity'] + (Vector2(0, 1) * 150) if stick_to_ground else state['velocity'])
+	#var adjusted_position = collision_popout()
+	#state['host'].set_position(adjusted_position)
+	if $"/root/world/camera":
+		$"/root/world/camera".update_camera()
 
 func update_move_mode(from, to):
 	state['flags']['canjump'] = true if (from == "air" and to == "ground") else false
 	if from == "air" and to == "ground":
 		state['flags']['jumped'] = false
 		state['ground_speed'] = state['velocity'].x
-	if from == "ground" and to == "air":
-		state['ground_speed'] = 0.0
 
 func jump():
-	print("jumping.")
-	state['velocity'] = Vector2(state['velocity'].x, -properties['jump_power'])
+	state['velocity'] = Vector2(state['velocity'].x - (properties['jump_power'] * sin(state['collisions']['angle'])), state['velocity'].y - (properties['jump_power'] * cos(state['collisions']['angle'])))
 	var new_move_mode = "air"
 	update_move_mode(state['collisions']['move_mode'], new_move_mode)
 	state['collisions']['move_mode'] = new_move_mode
 	state['flags']['jumped'] = true
-
-func land():
-	ground_popout(state['host'].position)
 
 func ground_popout(proposed_position):
 	var position_x = proposed_position.x
 	var position_y = proposed_position.y
 	if (state['collisions']['floor_left']['colliding'] and not state['collisions']['floor_right']['colliding']):
 		position_y = state['collisions']['floor_left']['position'].y - 20.0
-		state['velocity'] = Vector2(0, state['velocity'].y)
 	elif (state['collisions']['floor_right']['colliding'] and not state['collisions']['floor_left']['colliding']):
 		position_y = state['collisions']['floor_right']['position'].y -  20.0
 	elif (state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding']):
-		position_y = max(state['collisions']['floor_left']['position'].y, state['collisions']['floor_right']['position'].y) - 20.0
+		position_y = min(state['collisions']['floor_left']['position'].y, state['collisions']['floor_right']['position'].y) - 20.0
 	return Vector2(position_x, position_y)
 
 func collision_popout():
@@ -119,24 +127,12 @@ func collision_popout():
 	if state['collisions']['ceiling_left']['colliding'] or state['collisions']['ceiling_left']['colliding']:
 		if state['collisions']['ceiling_left']['colliding'] and not state['collisions']['ceiling_right']['colliding']:
 			position_y = state['collisions']['ceiling_left']['position'].y + ceiling_offset
+			state['velocity'].y = 0
 		elif state['collisions']['ceiling_right']['colliding'] and not state['collisions']['ceiling_left']['colliding']:
 			position_y = state['collisions']['ceiling_right']['position'].y + ceiling_offset
+			state['velocity'].y = 0
 		else:
 			position_y = max(state['collisions']['ceiling_left']['position'].y + ceiling_offset, state['collisions']['ceiling_right']['position'].y + ceiling_offset)
-	if state['collisions']['wall_left']['colliding']:
-		position_x = state['collisions']['wall_left']['position'].x + 11
-		if state['ground_speed'] < 0:
-			state['velocity'] = Vector2(0, state['velocity'].y)
-			state['ground_speed'] = 0.0
-	if state['collisions']['wall_right']['colliding']:
-		position_x = state['collisions']['wall_right']['position'].x - 11
-		state['velocity'] = Vector2(0, state['velocity'].y)
-		if state['ground_speed'] > 0:
-			state['velocity'] = Vector2(0, state['velocity'].y)
-			state['ground_speed'] = 0.0
 	var proposed_position = Vector2(position_x, position_y)
-	if state['collisions']['move_mode'] == 'ground':
-		return ground_popout(proposed_position)
-	else:
-		return proposed_position
+	return proposed_position
 

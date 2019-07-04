@@ -4,5 +4,6 @@ func tick(delta, props, state):
 	return {
 		"left": Input.is_action_pressed("move_left"),
 		"right": Input.is_action_pressed("move_right"),
-		"jump": Input.is_action_pressed("jump")
+		"jump": Input.is_action_pressed("jump"),
+		"jumped": Input.is_action_just_pressed("jump")
 	}

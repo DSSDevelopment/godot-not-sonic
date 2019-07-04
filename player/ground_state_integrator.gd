@@ -20,6 +20,11 @@ func tick(delta, props, state):
 			ground_speed += props['acceleration']
 	elif not pushing_left and not pushing_right:
 		ground_speed -= min(abs(ground_speed), props['friction']) * sign(ground_speed)
+	
+	if ground_speed < 0 and state['collisions']['wall_left']['colliding']:
+		ground_speed = 0
+	elif ground_speed > 0 and state['collisions']['wall_right']['colliding']:
+		ground_speed = 0
 
 	if ground_speed > props['max_running_speed']:
 		ground_speed = props['max_running_speed']
