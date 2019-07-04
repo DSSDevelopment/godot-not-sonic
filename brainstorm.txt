@@ -1,0 +1,21 @@
+ENVIRONMENT: acc, dec, frc, jmp, top, slp, slp_rollup, slp_rolldown, fall, air, grv 
+
+INPUT: dir, jump
+
+FLAGS: +jumped +rolling +lookUp +lookDown +falling
+
+STATE:
+  pos[x, y]
+  spd[x, y]
+  gsp
+  slope
+  ang, 0 <= ang <= 360
+  spincharge, 0 <= spincharge <= 8
+  horizlocktimer >= 0
+  movemode = g || a
+  floormode = 0 || 1 || 2 || 3
+  c(f[l, r], r[l, r], rf[l, r], rr[l,r], w[l, r]) 
+
+mode pure functions:
+  ground = +rolling ? c(rf[l]) || c(rf[r]) : c(f[l]) || c(f[r])
+    +balancing = -rolling && XOR( c(f[l]) c(f[r]) )

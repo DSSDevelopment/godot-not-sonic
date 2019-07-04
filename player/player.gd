@@ -23,16 +23,6 @@ var slope: float = 0.0
 var ground_angle: float = 0.0
 
 func _physics_process(delta):
-	update_input()
-	update_state()
-	var new_speed = speed
-	if state == "standing" or state == "balancing":
-		new_speed = ground_movement(delta)
-	elif state == "falling":
-		new_speed = air_movement(delta)
-	speed = move_and_slide(new_speed)
-	if position.x < 9.0:
-		position.x = 9.0
 	if $"../camera":
 		$"../camera".update_camera()
 
