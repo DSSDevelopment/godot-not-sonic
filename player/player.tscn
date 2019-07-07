@@ -26,7 +26,7 @@ tracks/0/keys = {
 "values": [ 17, 18 ]
 }
 
-[sub_resource type="Animation" id=11]
+[sub_resource type="Animation" id=2]
 resource_name = "Idle1"
 length = 5.0
 tracks/0/type = "value"
@@ -42,8 +42,7 @@ tracks/0/keys = {
 "values": [ 0 ]
 }
 
-[sub_resource type="Animation" id=2]
-resource_name = "Idle2"
+[sub_resource type="Animation" id=3]
 length = 0.8
 loop = true
 step = 0.4
@@ -60,8 +59,7 @@ tracks/0/keys = {
 "values": [ 3, 4 ]
 }
 
-[sub_resource type="Animation" id=3]
-resource_name = "LookDown"
+[sub_resource type="Animation" id=4]
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:frame")
 tracks/0/interp = 1
@@ -75,8 +73,7 @@ tracks/0/keys = {
 "values": [ 43 ]
 }
 
-[sub_resource type="Animation" id=4]
-resource_name = "LookUp"
+[sub_resource type="Animation" id=5]
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:frame")
 tracks/0/interp = 1
@@ -90,7 +87,7 @@ tracks/0/keys = {
 "values": [ 5 ]
 }
 
-[sub_resource type="Animation" id=12]
+[sub_resource type="Animation" id=6]
 resource_name = "Pushing"
 length = 2.0
 step = 0.5
@@ -107,8 +104,7 @@ tracks/0/keys = {
 "values": [ 27, 28, 29, 30 ]
 }
 
-[sub_resource type="Animation" id=5]
-resource_name = "Roll"
+[sub_resource type="Animation" id=7]
 length = 0.48
 loop = true
 step = 0.12
@@ -125,7 +121,7 @@ tracks/0/keys = {
 "values": [ 6, 7, 8, 9 ]
 }
 
-[sub_resource type="Animation" id=6]
+[sub_resource type="Animation" id=8]
 length = 0.24
 loop = true
 step = 0.06
@@ -142,7 +138,7 @@ tracks/0/keys = {
 "values": [ 39, 40, 41, 42 ]
 }
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id=9]
 length = 0.6
 loop = true
 tracks/0/type = "value"
@@ -158,12 +154,12 @@ tracks/0/keys = {
 "values": [ 33, 34, 35, 36, 37, 38 ]
 }
 
-[sub_resource type="RayShape2D" id=8]
+[sub_resource type="RayShape2D" id=10]
 
-[sub_resource type="RayShape2D" id=9]
+[sub_resource type="RayShape2D" id=11]
 length = 10.0
 
-[sub_resource type="RayShape2D" id=10]
+[sub_resource type="RayShape2D" id=12]
 length = 16.0
 
 [node name="player" type="KinematicBody2D"]
@@ -197,12 +193,12 @@ collision_mask = 1024
 
 [node name="wall_left" type="RayCast2D" parent="."]
 enabled = true
-cast_to = Vector2( -11, 0 )
+cast_to = Vector2( -10, 0 )
 collision_mask = 1024
 
 [node name="wall_right" type="RayCast2D" parent="."]
 enabled = true
-cast_to = Vector2( 11, 0 )
+cast_to = Vector2( 10, 0 )
 collision_mask = 1024
 
 [node name="sprite" type="Sprite" parent="."]
@@ -214,14 +210,14 @@ frame = 18
 
 [node name="animation_player" type="AnimationPlayer" parent="sprite"]
 anims/Brake = SubResource( 1 )
-anims/Idle1 = SubResource( 11 )
-anims/Idle2 = SubResource( 2 )
-anims/LookDown = SubResource( 3 )
-anims/LookUp = SubResource( 4 )
-anims/Pushing = SubResource( 12 )
-anims/Roll = SubResource( 5 )
-anims/Run = SubResource( 6 )
-anims/Walk = SubResource( 7 )
+anims/Idle1 = SubResource( 2 )
+anims/Idle2 = SubResource( 3 )
+anims/LookDown = SubResource( 4 )
+anims/LookUp = SubResource( 5 )
+anims/Pushing = SubResource( 6 )
+anims/Roll = SubResource( 7 )
+anims/Run = SubResource( 8 )
+anims/Walk = SubResource( 9 )
 script = ExtResource( 3 )
 
 [node name="sonic_movement" type="Node" parent="."]
@@ -241,33 +237,33 @@ script = ExtResource( 8 )
 
 [node name="ground_collider_left" type="CollisionShape2D" parent="."]
 position = Vector2( -9, 0 )
-shape = SubResource( 8 )
+shape = SubResource( 10 )
 one_way_collision = true
 one_way_collision_margin = 0.0
 
 [node name="ground_collider_right" type="CollisionShape2D" parent="."]
 position = Vector2( 9, 0 )
-shape = SubResource( 8 )
+shape = SubResource( 10 )
 one_way_collision = true
 one_way_collision_margin = 0.0
 
 [node name="wall_collider_left" type="CollisionShape2D" parent="."]
 rotation = 1.5708
-shape = SubResource( 9 )
+shape = SubResource( 11 )
 
 [node name="wall_collider_right" type="CollisionShape2D" parent="."]
 rotation = -1.5708
-shape = SubResource( 9 )
+shape = SubResource( 11 )
 
 [node name="ceiling_collider_left" type="CollisionShape2D" parent="."]
 position = Vector2( 9, 0 )
 rotation = 3.14159
-shape = SubResource( 10 )
+shape = SubResource( 12 )
 one_way_collision = true
 
 [node name="ceiling_collider_right" type="CollisionShape2D" parent="."]
 position = Vector2( -9, 0 )
 rotation = 3.14159
-shape = SubResource( 10 )
+shape = SubResource( 12 )
 one_way_collision = true
 [connection signal="animation_finished" from="sprite/animation_player" to="sonic_movement" method="_on_animation_player_animation_finished"]
