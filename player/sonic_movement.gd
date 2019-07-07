@@ -4,7 +4,10 @@ var sensor_collider
 var input_handler
 var ground_state_integrator
 var air_state_integrator
+var animation_player
 var camera
+
+var idle_anim = 'Idle1'
 
 const properties = {
 	"max_falling_speed": 960,
@@ -42,7 +45,12 @@ var state = {
 	},
 	"flags": {
 		"canjump": false,
-		"jumped": false
+		"jumped": false,
+		"braking": false,
+		"looking_up": false,
+		"looking_down": false,
+		"rolling": false,
+		"pushing": false
 	}
 }
 
@@ -57,7 +65,9 @@ func _ready():
 		ground_state_integrator = $"../ground_state_integrator"
 	if $"../air_state_integrator":
 		air_state_integrator = $"../air_state_integrator"
-	var initialized = sensor_collider and input_handler and ground_state_integrator and air_state_integrator
+	if $"../sprite/animation_player":
+		animation_player = $"../sprite/animation_player"
+	var initialized = sensor_collider and input_handler and ground_state_integrator and air_state_integrator and animation_player
 	if initialized:
 		set_physics_process(true)
 	else:
@@ -91,8 +101,7 @@ func _physics_process(delta):
 		jump()
 	var stick_to_ground = state['collisions']['move_mode'] == 'ground' and (state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding'])
 	state['host'].move_and_slide(state['velocity'] + (Vector2(0, 1) * 150) if stick_to_ground else state['velocity'])
-	#var adjusted_position = collision_popout()
-	#state['host'].set_position(adjusted_position)
+	animation_step()
 	if $"/root/world/camera":
 		$"/root/world/camera".update_camera()
 
@@ -101,6 +110,7 @@ func update_move_mode(from, to):
 	if from == "air" and to == "ground":
 		state['flags']['jumped'] = false
 		state['ground_speed'] = state['velocity'].x
+		state['flags']['rolling'] = false
 
 func jump():
 	state['velocity'] = Vector2(state['velocity'].x - (properties['jump_power'] * sin(state['collisions']['angle'])), state['velocity'].y - (properties['jump_power'] * cos(state['collisions']['angle'])))
@@ -108,31 +118,53 @@ func jump():
 	update_move_mode(state['collisions']['move_mode'], new_move_mode)
 	state['collisions']['move_mode'] = new_move_mode
 	state['flags']['jumped'] = true
+	state['flags']['rolling'] = true
 
-func ground_popout(proposed_position):
-	var position_x = proposed_position.x
-	var position_y = proposed_position.y
-	if (state['collisions']['floor_left']['colliding'] and not state['collisions']['floor_right']['colliding']):
-		position_y = state['collisions']['floor_left']['position'].y - 20.0
-	elif (state['collisions']['floor_right']['colliding'] and not state['collisions']['floor_left']['colliding']):
-		position_y = state['collisions']['floor_right']['position'].y -  20.0
-	elif (state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding']):
-		position_y = min(state['collisions']['floor_left']['position'].y, state['collisions']['floor_right']['position'].y) - 20.0
-	return Vector2(position_x, position_y)
-
-func collision_popout():
-	var ceiling_offset = 21
-	var position_x = state['host'].position.x
-	var position_y = state['host'].position.y
-	if state['collisions']['ceiling_left']['colliding'] or state['collisions']['ceiling_left']['colliding']:
-		if state['collisions']['ceiling_left']['colliding'] and not state['collisions']['ceiling_right']['colliding']:
-			position_y = state['collisions']['ceiling_left']['position'].y + ceiling_offset
-			state['velocity'].y = 0
-		elif state['collisions']['ceiling_right']['colliding'] and not state['collisions']['ceiling_left']['colliding']:
-			position_y = state['collisions']['ceiling_right']['position'].y + ceiling_offset
-			state['velocity'].y = 0
+func animation_step():
+	var anim_name = idle_anim
+	var anim_speed = 1.0
+	var abs_gsp = abs(state['ground_speed'])
+	var play_once = false
+	
+	var moving_in_air = state['collisions']['move_mode'] == 'air' and abs(state['velocity']['x']) > .1
+	var walking_on_ground =  abs_gsp > .1 and !state['flags']['braking']
+	if moving_in_air or walking_on_ground:
+		idle_anim = 'Idle1'
+		if !state['flags']['rolling']:
+			anim_name = 'Walk'
+			if abs_gsp >= 360:
+ 				anim_name = 'Run'
+			anim_speed = max(-(8.0 / 60.0 - (abs_gsp / 120.0)), 1.0)
 		else:
-			position_y = max(state['collisions']['ceiling_left']['position'].y + ceiling_offset, state['collisions']['ceiling_right']['position'].y + ceiling_offset)
-	var proposed_position = Vector2(position_x, position_y)
-	return proposed_position
+			anim_speed = max(2.0, -((5.0 / 60.0) - (abs_gsp / 120.0)))
+		
+		if Input.is_action_pressed("ui_right"):
+			$"../sprite".scale.x = 1
+		elif Input.is_action_pressed("ui_left"):
+			$"../sprite".scale.x = -1
+	elif state['flags']['braking']:
+		anim_name = 'Brake'
+		anim_speed = 1.0
+	else:
+		if state['flags']['looking_down']:
+			idle_anim = 'Idle1'
+			anim_name = 'LookDown'
+			play_once = true
+		elif state['flags']['looking_up']:
+			idle_anim = 'Idle1'
+			anim_name = 'LookUp'
+			play_once = true
+		elif state['flags']['pushing']:
+			idle_anim = 'Idle1'
+			anim_name = 'Pushing'
+	if state['flags']['rolling']:
+		anim_name = 'Roll'
+		anim_speed = 2.0
+	
+	animation_player.animate(anim_name, anim_speed, play_once)
 
+func _on_animation_player_animation_finished(anim_name):
+	if anim_name == 'Brake':
+		state['flags']['braking'] = false
+	if anim_name == 'Idle1':
+		idle_anim = 'Idle2'
