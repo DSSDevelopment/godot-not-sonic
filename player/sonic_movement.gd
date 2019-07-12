@@ -12,14 +12,15 @@ var idle_anim = 'Idle1'
 const properties = {
 	"max_falling_speed": 960,
 	"max_running_speed": 360,
+	"max_rolling_speed": 720,
 	"acceleration": 2.8125,
 	"deceleration": 30,
 	"friction": 2.8125,
 	"top_speed": 6.0,
 	"jump_power": 390,
-	"slope_factor": 0.125,
-	"slope_roll_up": 0.78125,
-	"slope_roll_down": 0.3125,
+	"slope_factor": 7.5,
+	"slope_roll_up": 46.875,
+	"slope_roll_down": 18.75,
 	"fall": 2.5,
 	"gravity": 13.125
 }
@@ -29,7 +30,10 @@ var state = {
 	"input": {
 		"left": false,
 		"right": false,
+		"down": false,
+		"jumped": false,
 		"jump": false,
+		"quit": false
 	},
 	"velocity": Vector2(0, 0),
 	"ground_speed": 0.0,
@@ -78,6 +82,8 @@ func _process(delta):
 		$"/root/world/camera".align()
 
 func _physics_process(delta):
+	if state['input']['quit']:
+		get_tree().quit()
 	var collisions_update = sensor_collider.tick(delta, properties, state)
 	if state['collisions']['move_mode'] != collisions_update['move_mode']:
 		update_move_mode(state['collisions']['move_mode'], collisions_update['move_mode'])
@@ -136,6 +142,7 @@ func animation_step():
  				anim_name = 'Run'
 			anim_speed = max(-(8.0 / 60.0 - (abs_gsp / 120.0)), 1.0)
 		else:
+			anim_name = 'Roll'
 			anim_speed = max(2.0, -((5.0 / 60.0) - (abs_gsp / 120.0)))
 		
 		if Input.is_action_pressed("ui_right"):
@@ -145,6 +152,9 @@ func animation_step():
 	elif state['flags']['braking']:
 		anim_name = 'Brake'
 		anim_speed = 1.0
+	elif state['flags']['rolling']:
+		anim_name = 'Roll'
+		anim_speed = 2.0
 	else:
 		if state['flags']['looking_down']:
 			idle_anim = 'Idle1'
@@ -157,9 +167,6 @@ func animation_step():
 		elif state['flags']['pushing']:
 			idle_anim = 'Idle1'
 			anim_name = 'Pushing'
-	if state['flags']['rolling']:
-		anim_name = 'Roll'
-		anim_speed = 2.0
 	
 	animation_player.animate(anim_name, anim_speed, play_once)
 
