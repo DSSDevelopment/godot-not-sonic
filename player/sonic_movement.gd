@@ -19,7 +19,7 @@ const properties = {
 	"top_speed": 6.0,
 	"jump_power": 390,
 	"slope_factor": 7.5,
-	"slope_roll_up": 46.875,
+	"slope_roll_up": 4.6875,
 	"slope_roll_down": 18.75,
 	"fall": 2.5,
 	"gravity": 13.125
@@ -31,6 +31,7 @@ var state = {
 		"left": false,
 		"right": false,
 		"down": false,
+		"down_started": false,
 		"jumped": false,
 		"jump": false,
 		"quit": false
@@ -89,23 +90,17 @@ func _physics_process(delta):
 		update_move_mode(state['collisions']['move_mode'], collisions_update['move_mode'])
 	state['collisions'] = collisions_update
 	state['input'] = input_handler.tick(delta, properties, state)
-	var floor_normal = Vector2(0, 0)
 	if state['collisions']["move_mode"] == "ground":
 		state['ground_speed'] = ground_state_integrator.tick(delta, properties, state)
-		if state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding']:
-			floor_normal = state['collisions']['floor_left']['normal'] if state['collisions']['floor_left']['position'].y < state['collisions']['floor_right']['position'].y else state['collisions']['floor_right']['normal']
-		elif state['collisions']['floor_left']['colliding'] and not state['collisions']['floor_right']['colliding']:
-			floor_normal = state['collisions']['floor_left']['normal']
-		elif state['collisions']['floor_right']['colliding'] and not state['collisions']['floor_left']['colliding']:
-			floor_normal = state['collisions']['floor_right']['normal']
-		state['collisions']['angle'] = floor_normal.angle_to(Vector2(0, -1))
+		state['collisions']['angle'] = get_floor_normal().angle_to(Vector2(0, -1))
 		state['velocity'] = Vector2(state['ground_speed'] * cos(state['collisions']['angle']), state['ground_speed'] * -sin(state['collisions']['angle']))
+		state['flags']['looking_down'] = state['velocity'].x <= 0.1 and state['input']['down']
 	else:
 		state['velocity'] = air_state_integrator.tick(delta, properties, state)
 	var jumping = state['input']['jumped'] and state['flags']['canjump'] and not (state['collisions']['ceiling_left']['colliding'] or state['collisions']['ceiling_right']['colliding'])
 	if jumping:
 		jump()
-	var stick_to_ground = state['collisions']['move_mode'] == 'ground' and (state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding'])
+	var stick_to_ground = state['collisions']['move_mode'] == 'ground' and (state['collisions']['floor_left']['colliding'] or state['collisions']['floor_right']['colliding'])
 	state['host'].move_and_slide(state['velocity'] + (Vector2(0, 1) * 150) if stick_to_ground else state['velocity'])
 	animation_step()
 	if $"/root/world/camera":
@@ -117,6 +112,16 @@ func update_move_mode(from, to):
 		state['flags']['jumped'] = false
 		state['ground_speed'] = state['velocity'].x
 		state['flags']['rolling'] = false
+
+func get_floor_normal():
+	if state['collisions']['floor_left']['colliding'] and state['collisions']['floor_right']['colliding']:
+		return state['collisions']['floor_left']['normal'] if state['collisions']['floor_left']['position'].y < state['collisions']['floor_right']['position'].y else state['collisions']['floor_right']['normal']
+	elif state['collisions']['floor_left']['colliding'] and not state['collisions']['floor_right']['colliding']:
+		return state['collisions']['floor_left']['normal']
+	elif state['collisions']['floor_right']['colliding'] and not state['collisions']['floor_left']['colliding']:
+		return state['collisions']['floor_right']['normal']
+	else:
+		return Vector2(0, 0)
 
 func jump():
 	state['velocity'] = Vector2(state['velocity'].x - (properties['jump_power'] * sin(state['collisions']['angle'])), state['velocity'].y - (properties['jump_power'] * cos(state['collisions']['angle'])))
@@ -144,7 +149,7 @@ func animation_step():
 		else:
 			anim_name = 'Roll'
 			anim_speed = max(2.0, -((5.0 / 60.0) - (abs_gsp / 120.0)))
-		
+
 		if Input.is_action_pressed("ui_right"):
 			$"../sprite".scale.x = 1
 		elif Input.is_action_pressed("ui_left"):
@@ -167,7 +172,6 @@ func animation_step():
 		elif state['flags']['pushing']:
 			idle_anim = 'Idle1'
 			anim_name = 'Pushing'
-	
 	animation_player.animate(anim_name, anim_speed, play_once)
 
 func _on_animation_player_animation_finished(anim_name):

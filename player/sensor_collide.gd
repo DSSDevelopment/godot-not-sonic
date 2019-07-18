@@ -38,6 +38,6 @@ func tick(delta, props, state):
 	if not collisions['floor_left']['colliding'] and not collisions['floor_right']['colliding']:
 		collisions['move_mode'] = 'air'
 	elif state['velocity'].y > 0:
-		if (collisions['floor_left']['colliding'] and state['host']['position'].y + 20 > collisions['floor_left']['position'].y) or (collisions['floor_right']['colliding'] and state['host']['position'].y + 20 > collisions['floor_right']['position'].y):
+		if (collisions['floor_left']['colliding'] and state['host']['position'].y + 20 >= collisions['floor_left']['position'].y) or (collisions['floor_right']['colliding'] and state['host']['position'].y + 20 >= collisions['floor_right']['position'].y):
 			collisions['move_mode'] = 'ground'
 	return collisions

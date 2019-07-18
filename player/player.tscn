@@ -206,7 +206,6 @@ position = Vector2( 0, -5 )
 texture = ExtResource( 2 )
 vframes = 14
 hframes = 11
-frame = 18
 
 [node name="animation_player" type="AnimationPlayer" parent="sprite"]
 anims/Brake = SubResource( 1 )
