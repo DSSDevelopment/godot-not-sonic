@@ -5,7 +5,6 @@ func tick(delta, props, state):
 	var velocity_y = state['velocity'].y
 
 	if state['collisions']['ceiling_left']['colliding'] or state['collisions']['ceiling_right']['colliding']:
-		print('ceiling.')
 		velocity_y = 0
 
 	if velocity_y < 0 and velocity_y > -240:
